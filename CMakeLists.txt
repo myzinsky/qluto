@@ -19,8 +19,9 @@ set(CMAKE_INSTALL_RPATH "@executable_path/lib/libiio")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
 
 # Search for Qt:
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick REQUIRED)
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick Widgets REQUIRED)
+
 
 add_executable(qluto
     src/pluto.cpp
@@ -34,7 +35,9 @@ target_include_directories(qluto
 
 target_link_libraries(qluto
     PRIVATE iio
-    PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick
+    PRIVATE Qt${QT_VERSION_MAJOR}::Core
+    PRIVATE Qt${QT_VERSION_MAJOR}::Quick
+    PRIVATE Qt${QT_VERSION_MAJOR}::Widgets
 )
 
 target_compile_definitions(qluto
