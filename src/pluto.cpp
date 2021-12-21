@@ -50,16 +50,6 @@ bool pluto::getStreamDevice(iio_context *context, iodev d, iio_device **device)
     return false;
 }
 
-// Finds streaming IIO channels:
-//bool pluto::getStreamChannel(iio_context *context, iodev d, iio_device *device, int chid, char modify, iio_channel **channel) 
-//{
-//    *channel = iio_device_find_channel(device, modify ? getChannelNameModify("voltage", chid, modify).c_str() : getChannelName("voltage", chid).c_str(), d == TX);
-//    if (!*channel) {
-//        *channel = iio_device_find_channel(device, modify ? getChannelNameModify("voltage", chid, modify).c_str() : getChannelName("voltage", chid).c_str(), d == TX);
-//    }
-//    return *channel != NULL;
-//}
-
 bool pluto::getStreamChannel(iio_context *context, iodev d, iio_device *device, int chid, iio_channel **channel) {
     *channel = iio_device_find_channel(device, getChannelName("voltage", chid).c_str(), d == TX);
     if (!*channel)
