@@ -21,6 +21,7 @@ class pluto : public QObject
 
     public slots:
     void connect();
+    void start();
 
     signals: 
     void connected();

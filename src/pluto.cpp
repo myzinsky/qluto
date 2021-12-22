@@ -246,3 +246,6 @@ void pluto::connect()
 
 	emit connected();
 }
+
+void pluto::start() {
+}

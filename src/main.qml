@@ -12,11 +12,25 @@ Window {
     visible: true
     title: qsTr("Hello World")
 
-    Button {
-        id: connectButton
-        text: qsTr("Connect")
-        onClicked: {
-            pluto.connect();
+    GridLayout {
+        id: grid
+        columns: 2
+
+        Button {
+            id: connectButton
+            text: qsTr("Connect")
+            onClicked: {
+                pluto.connect();
+            }
+        }
+
+        Button {
+            id: startButton
+            enabled: false;
+            text: qsTr("Start")
+            onClicked: {
+                pluto.start();
+            }
         }
     }
 
@@ -34,7 +48,7 @@ Window {
         }
 
         function onConnected() {
-
+            startButton.enabled = true;
         }
     }
 }
