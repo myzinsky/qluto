@@ -18,15 +18,15 @@ iio_scan_context* pluto::getScanContext() {
 }
 
 iio_context* pluto::getContext(iio_scan_context *scanContext) {
-	struct iio_context_info **info;
-	int ret = iio_scan_context_get_info_list(scanContext, &info);
+    struct iio_context_info **info;
+    int ret = iio_scan_context_get_info_list(scanContext, &info);
 
     if(ret <= 0) {
         std::cout << "Unable to detect device" << std::endl;
         return nullptr;
     } else if (ret == 1) {
-		std::cout << "Device found: " << iio_context_info_get_uri(info[0]) << std::endl;
-		return iio_create_context_from_uri(iio_context_info_get_uri(info[0]));
+        std::cout << "Device found: " << iio_context_info_get_uri(info[0]) << std::endl;
+        return iio_create_context_from_uri(iio_context_info_get_uri(info[0]));
     } else {
         std::cout << "More than one device found: FIXME" << std::endl;
         return nullptr;
@@ -61,7 +61,7 @@ bool pluto::getStreamChannel(iio_context *context, iodev d, iio_device *device, 
 bool pluto::getPhyConfigChannel(iio_context *context, iodev d, int chid, iio_channel **channel) 
 {
     if(d == RX) {
-	    *channel = iio_device_find_channel(getDevice(context), getChannelName("voltage", chid).c_str(), false);
+        *channel = iio_device_find_channel(getDevice(context), getChannelName("voltage", chid).c_str(), false);
         return *channel != NULL;
     } else if (d == TX) {
         *channel = iio_device_find_channel(getDevice(context), getChannelName("voltage", chid).c_str(), true);
@@ -74,10 +74,10 @@ bool pluto::getPhyConfigChannel(iio_context *context, iodev d, int chid, iio_cha
 bool pluto::getLocalOscillatorChannel(iio_context *context, iodev d, iio_channel **channel) 
 {
     if(d == RX) {
-	    *channel = iio_device_find_channel(getDevice(context), getChannelName("altvoltage", 0).c_str(), true);
+        *channel = iio_device_find_channel(getDevice(context), getChannelName("altvoltage", 0).c_str(), true);
         return *channel != NULL;
     } else if (d == TX) {
-	    *channel = iio_device_find_channel(getDevice(context), getChannelName("altvoltage", 1).c_str(), true); 
+        *channel = iio_device_find_channel(getDevice(context), getChannelName("altvoltage", 1).c_str(), true); 
         return *channel != NULL;
     }
     return false;
@@ -93,17 +93,17 @@ std::string pluto::getChannelNameModify(const char* type, int id, char modify)
 
 void pluto::writeToChannel(iio_channel *channel, std::string what, std::string val)
 {
-	iio_channel_attr_write(channel, what.c_str(), val.c_str());
+    iio_channel_attr_write(channel, what.c_str(), val.c_str());
 }
 
 void pluto::writeToChannel(iio_channel *channel, std::string what, double val)
 {
-	iio_channel_attr_write_double(channel, what.c_str(), val);
+    iio_channel_attr_write_double(channel, what.c_str(), val);
 }
 
 void pluto::writeToChannel(iio_channel *channel, std::string what, int64_t val)
 {
-	iio_channel_attr_write_longlong(channel, what.c_str(), val);
+    iio_channel_attr_write_longlong(channel, what.c_str(), val);
 }
 
 std::string pluto::getChannelName(const char* type, int id) 
@@ -131,15 +131,15 @@ bool pluto::configureChannel(iio_context *context, stream_cfg *config, iodev typ
         setTxQrg(config->lo_hz);
     } else {
         writeToChannel(channel, "gain_control_mode", "slow_attack");
-		setRxQrg(config->lo_hz);
+        setRxQrg(config->lo_hz);
     }
 
-	return true;
+    return true;
 }
 
 bool pluto::setTxPower(double power) {
-	struct iio_channel *channel = nullptr;
-	if (!getPhyConfigChannel(context, TX, 0, &channel)) {
+    struct iio_channel *channel = nullptr;
+    if (!getPhyConfigChannel(context, TX, 0, &channel)) {
         return false;
     }
 
@@ -168,22 +168,22 @@ bool pluto::setRxQrg(int64_t qrg)
 void pluto::connect()
 {
     // RX stream config:
-	rxCfg.bw_hz = bandwidthRx;
-	rxCfg.fs_hz = sampleRate;
-	rxCfg.lo_hz = baseQrgRx;
-	rxCfg.rfport = "A_BALANCED";
+    rxCfg.bw_hz = bandwidthRx;
+    rxCfg.fs_hz = sampleRate;
+    rxCfg.lo_hz = baseQrgRx;
+    rxCfg.rfport = "A_BALANCED";
 
     // TX stream config:
-	txCfg.bw_hz = bandwidthRx;
-	txCfg.fs_hz = sampleRate;
-	txCfg.lo_hz = baseQrgTx;
-	txCfg.rfport = "A";
+    txCfg.bw_hz = bandwidthRx;
+    txCfg.fs_hz = sampleRate;
+    txCfg.lo_hz = baseQrgTx;
+    txCfg.rfport = "A";
 
     // Find Pluto:
     auto scanContext = getScanContext();
 
-	if (scanContext == nullptr) {
-		emit connectionError("Cannot connect to Pluto: Unable to create scan context");
+    if (scanContext == nullptr) {
+        emit connectionError("Cannot connect to Pluto: Unable to create scan context");
         return;
     }
 
@@ -191,60 +191,60 @@ void pluto::connect()
     context = getContext(scanContext);
 
     if(context == nullptr) {
-		emit connectionError("Cannot connect to Pluto: Unable to create context");
+        emit connectionError("Cannot connect to Pluto: Unable to create context");
         return;
     }
 
     // Get TX and RX Stream Devices:
     if(!getStreamDevice(context, TX, &tx)) {
-	    emit connectionError("Cannot connect to Pluto: Unable to find TX steraming device");
+        emit connectionError("Cannot connect to Pluto: Unable to find TX steraming device");
         return;
     }
 
     if(!getStreamDevice(context, RX, &rx)) {
-	    emit connectionError("Cannot connect to Pluto: Unable to find RX steraming device");
+        emit connectionError("Cannot connect to Pluto: Unable to find RX steraming device");
         return;
     }
 
-	if(!configureChannel(context, &rxCfg, RX, 0)) {
-	    emit connectionError("Cannot connect to Pluto: Unable to configure RX channel");
+    if(!configureChannel(context, &rxCfg, RX, 0)) {
+        emit connectionError("Cannot connect to Pluto: Unable to configure RX channel");
         return;
     }
 
-	if(!configureChannel(context, &txCfg, TX, 0)) {
-	    emit connectionError("Cannot connect to Pluto: Unable to configure RX channel");
+    if(!configureChannel(context, &txCfg, TX, 0)) {
+        emit connectionError("Cannot connect to Pluto: Unable to configure RX channel");
         return;
     }
 
     bool result = true;
     result &= getStreamChannel(context, RX, rx, 0, &rx0i);
     result &= getStreamChannel(context, RX, rx, 1, &rx0q);
-	result &= getStreamChannel(context, TX, tx, 0, &tx0i);
-	result &= getStreamChannel(context, TX, tx, 1, &tx0q);
+    result &= getStreamChannel(context, TX, tx, 0, &tx0i);
+    result &= getStreamChannel(context, TX, tx, 1, &tx0q);
 
     if(!result) {
-	    emit connectionError("Cannot connect to Pluto: Unable to find streaming channel");
+        emit connectionError("Cannot connect to Pluto: Unable to find streaming channel");
         return;
     }
 
     iio_channel_enable(rx0i);
-	iio_channel_enable(rx0q);
-	iio_channel_enable(tx0i);
-	iio_channel_enable(tx0q);
+    iio_channel_enable(rx0q);
+    iio_channel_enable(tx0i);
+    iio_channel_enable(tx0q);
 
     rxBuffer = iio_device_create_buffer(rx, sampleBufferSize, false);
-	if (!rxBuffer) {
-	    emit connectionError("Could not create RX buffer");
+    if (!rxBuffer) {
+        emit connectionError("Could not create RX buffer");
         return;
-	}
+    }
 
-	txBuffer = iio_device_create_buffer(tx, sampleBufferSize, false);
-	if (!txBuffer) {
-	    emit connectionError("Could not create TX buffer");
+    txBuffer = iio_device_create_buffer(tx, sampleBufferSize, false);
+    if (!txBuffer) {
+        emit connectionError("Could not create TX buffer");
         return;
-	}
+    }
 
-	emit connected();
+    emit connected();
 }
 
 void pluto::start() {

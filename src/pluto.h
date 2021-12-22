@@ -10,10 +10,10 @@ class pluto : public QObject
     enum iodev { RX, TX };
 
     struct stream_cfg {
-    	int64_t bw_hz;      // Analog bandwidth in Hz
-    	int64_t fs_hz;      // Baseband sample rate in Hz
-    	int64_t lo_hz;      // Local oscillator frequency in Hz
-    	const char* rfport; // Port name
+        int64_t bw_hz;      // Analog bandwidth in Hz
+        int64_t fs_hz;      // Baseband sample rate in Hz
+        int64_t lo_hz;      // Local oscillator frequency in Hz
+        const char* rfport; // Port name
     };
 
     public:
