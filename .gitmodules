@@ -1,3 +1,6 @@
 [submodule "lib/libiio"]
 	path = lib/libiio
 	url = https://github.com/analogdevicesinc/libiio.git
+[submodule "lib/liquid-dsp"]
+	path = lib/liquid-dsp
+	url = https://github.com/jgaeddert/liquid-dsp.git
