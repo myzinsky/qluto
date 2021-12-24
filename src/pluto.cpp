@@ -1,12 +1,12 @@
 #include "pluto.h"
 
 pluto::pluto() {
-    sampleRate = 3000000;
+    sampleRate = 3'000'000;
     sampleBufferSize = sampleRate/10;
-    lnbReference = 24000UL; // kHz
-    baseQrg = 10489470UL; // KHz
-    baseQrgRx = double((baseQrg - 390UL*lnbReference)*1000UL); // Hz
-    baseQrgTx = double((2400000UL - 30UL)*1000UL); // Hz
+    lnbReference = 24'000'000;
+    baseQrg = 10'489'470'000;
+    baseQrgRx = double(baseQrg - 390UL*lnbReference);
+    baseQrgTx = double(2'400'000UL - 30UL);
     bandwidthRx = 1'000'000; 
     bandwidthTx =   100'000;
     rxBuffer = nullptr;
@@ -114,7 +114,7 @@ std::string pluto::getChannelName(const char* type, int id)
     return ss.str();
 }
 
-bool pluto::configureChannel(iio_context *context, stream_cfg *config, iodev type, int chid)
+bool pluto::configureChannel(iio_context *context, int64_t bandwidth, int64_t sampleRate, double baseQrg, std::string port, iodev type, int chid)
 {
     iio_channel *channel = nullptr;
 
@@ -122,16 +122,16 @@ bool pluto::configureChannel(iio_context *context, stream_cfg *config, iodev typ
         return false;
     }
 
-    writeToChannel(channel, "rf_port_select", config->rfport);
-    writeToChannel(channel, "rf_bandwidth", config->bw_hz);
-    writeToChannel(channel, "sampling_frequency", config->fs_hz);
+    writeToChannel(channel, "rf_port_select", port.c_str());
+    writeToChannel(channel, "rf_bandwidth", bandwidth);
+    writeToChannel(channel, "sampling_frequency", sampleRate);
 
     if(type == TX) {
         setTxPower(0.0);
-        setTxQrg(config->lo_hz);
+        setTxQrg(baseQrgRx);
     } else {
         writeToChannel(channel, "gain_control_mode", "slow_attack");
-        setRxQrg(config->lo_hz);
+        setRxQrg(baseQrgRx);
     }
 
     return true;
@@ -167,18 +167,6 @@ bool pluto::setRxQrg(int64_t qrg)
 
 void pluto::connect()
 {
-    // RX stream config:
-    rxCfg.bw_hz = bandwidthRx;
-    rxCfg.fs_hz = sampleRate;
-    rxCfg.lo_hz = baseQrgRx;
-    rxCfg.rfport = "A_BALANCED";
-
-    // TX stream config:
-    txCfg.bw_hz = bandwidthRx;
-    txCfg.fs_hz = sampleRate;
-    txCfg.lo_hz = baseQrgTx;
-    txCfg.rfport = "A";
-
     // Find Pluto:
     auto scanContext = getScanContext();
 
@@ -206,12 +194,13 @@ void pluto::connect()
         return;
     }
 
-    if(!configureChannel(context, &rxCfg, RX, 0)) {
+
+    if(!configureChannel(context, bandwidthRx, sampleRate, baseQrg, "A_BALANCED", RX, 0)) {
         emit connectionError("Cannot connect to Pluto: Unable to configure RX channel");
         return;
     }
 
-    if(!configureChannel(context, &txCfg, TX, 0)) {
+    if(!configureChannel(context, bandwidthRx, sampleRate, baseQrg, "A", TX, 0)) {
         emit connectionError("Cannot connect to Pluto: Unable to configure RX channel");
         return;
     }
@@ -248,4 +237,52 @@ void pluto::connect()
 }
 
 void pluto::start() {
+    rxThread = QThread::create([&]() {rxFunction();});
+    rxThread->start();
+}
+
+void pluto::rxFunction()
+{
+    forever{
+        ssize_t numberOfRxBytes = iio_buffer_refill(rxBuffer);
+        if(numberOfRxBytes < 0) {
+            emit connectionError("Error Refilling rxBuffer");
+        }
+        
+        uint8_t *start = (uint8_t *)iio_buffer_first(rxBuffer, rx0i);
+
+        QThread::msleep(1000);
+    }
+
+    //ssize_t nbytes_rx, nbytes_tx;
+    //uint8_t *p_dat, *p_start;
+
+    ////while(true)
+    //{
+    //    // Get samples from Pluto:
+    //    nbytes_rx = iio_buffer_refill(rxBuffer);
+    //    if (nbytes_rx < 0) {
+    //        std::cout << "Error refilling rxBuffer: " << nbytes_rx << std::endl;
+    //    }
+
+    //    p_start = (uint8_t *)iio_buffer_first(rxBuffer, rx0i);
+
+    //    // sample buffer begins at p_start with length (PLUTOBUFSIZE * p_inc) bytes
+    //    // TODO write_fifo(RXfifo,p_start,nbytes_rx);
+    //    // TODO write_fifo(FFTfifo,p_start,nbytes_rx);
+
+    //    // Send samples to Pluto:
+    //    //uint8_t pidata[sampleBufferSize*4];
+    //    //int lenfifo = read_fifo(TXfifo, pidata, PLUTOBUFSIZE*4);
+    //    //if(lenfifo)
+    //    //{
+    //    //    p_dat = (uint8_t *)iio_buffer_first(txbuf, tx0_i);
+    //    //    memcpy(p_dat,pidata,PLUTOBUFSIZE*4);
+
+    //    //    nbytes_tx = iio_buffer_push(txbuf);
+    //    //    if (nbytes_tx < 0) { printf("Error pushing buf %d\n", (int) nbytes_tx); }
+    //    //}
+
+    //    //usleep(1000);
+    //}
 }

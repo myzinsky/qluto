@@ -19,13 +19,13 @@ set(CMAKE_INSTALL_RPATH "@executable_path/lib/libiio")
 set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
 
 # Search for Qt:
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Core Quick Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick Widgets REQUIRED)
-
+find_package(QT NAMES Qt6 Qt5 COMPONENTS Qml Core Quick Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Qml Core Quick Widgets REQUIRED)
 
 add_executable(qluto
+    src/main.cpp
     src/pluto.cpp
-    src/test.cpp
+    src/waterfall.cpp
     src/qml.qrc
 )
 
@@ -41,8 +41,7 @@ target_link_libraries(qluto
 )
 
 target_compile_definitions(qluto
-  PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
-target_link_libraries(qluto
+  PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>
 )
 
 set_target_properties(qluto PROPERTIES
@@ -50,10 +49,3 @@ set_target_properties(qluto PROPERTIES
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 )
-
-############
-
-#if(QT_VERSION_MAJOR EQUAL 6)
-#    qt_import_qml_plugins(qml-test)
-#    qt_finalize_executable(qml-test)
-#endif()

@@ -5,12 +5,18 @@ import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.4
 import Qt.labs.settings 1.0
 import Qt.labs.platform 1.1
+import HamTools 1.0
 
 Window {
     width: 640
     height: 480
     visible: true
     title: qsTr("Hello World")
+
+    Waterfall {
+        id: wf1
+        anchors.fill: parent
+    }
 
     GridLayout {
         id: grid
