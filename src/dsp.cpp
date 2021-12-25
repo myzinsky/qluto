@@ -10,6 +10,13 @@ fft::fft(uint64_t N) : N(N)
     liquidFFT = fft_create_plan(N, fftIn, fftOut, LIQUID_FFT_FORWARD, 0);
 }
 
+fft::~fft()
+{
+    fft_destroy_plan(liquidFFT);
+    delete [] fftIn;
+    delete [] fftOut;
+}
+
 void fft::processSample(std::complex<float> sample)
 {
     fftIn[sampleCounter++] = sample;

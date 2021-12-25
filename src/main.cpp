@@ -10,7 +10,7 @@
 
 int main(int argc, char *argv[])
 {
-    fft fourier(1024);
+    fft fourier(4096);
     pluto pluto(&fourier);
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)

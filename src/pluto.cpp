@@ -5,7 +5,8 @@ pluto::pluto(fft* fourier) {
     sampleBufferSize = sampleRate/10;
     lnbReference = 24'000'000;
     baseQrg = 10'489'470'000;
-    baseQrgRx = double(baseQrg - 390UL*lnbReference);
+    //baseQrgRx = double(baseQrg - 390UL*lnbReference);
+    baseQrgRx = 432'600'000;
     baseQrgTx = double(2'400'000UL - 30UL);
     bandwidthRx = 1'000'000; 
     bandwidthTx =   100'000;
@@ -272,5 +273,6 @@ void pluto::rxFunction()
 		//printf("\tRX %8.2f MSmp\n", nrx/1e6);
 
         QThread::msleep(1000);
+
     }
 }
