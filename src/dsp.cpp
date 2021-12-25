@@ -24,20 +24,16 @@ void fft::processSample(std::complex<float> sample)
     if(sampleCounter == (N)) {
         sampleCounter = 0;
         fft_execute(liquidFFT);
-        prepareWaterfall();
+
+        std::vector<std::complex<float>> result = fftShift();
+        std::vector<float> waterfallSamples;
+
+        for(uint64_t i = 0; i < N; i++) {
+            waterfallSamples.push_back(std::abs(result[i]));
+        }    
+
+        emit notifyWaterfall(waterfallSamples);
     }
-}
-
-void fft::prepareWaterfall() 
-{
-    std::vector<std::complex<float>> result = fftShift();
-    std::vector<float> waterfallSamples;
-
-    for(uint64_t i = 0; i < N; i++) {
-        waterfallSamples.push_back(std::abs(result[i]));
-    }    
-
-    emit notifyWaterfall(waterfallSamples);
 }
 
 std::vector<std::complex<float>> fft::fftShift() 

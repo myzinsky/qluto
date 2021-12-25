@@ -15,7 +15,6 @@ class fft : public QObject
     fft(uint64_t N = 4096);
     ~fft();
     void processSample(std::complex<float> sample);
-    void prepareWaterfall();
 
     private:
     uint64_t N;
