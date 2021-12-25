@@ -11,7 +11,7 @@ Waterfall::Waterfall(QQuickItem *parent) : QQuickPaintedItem(parent)
     QObject::connect(this, &QQuickItem::heightChanged, this, &Waterfall::sizeChanged);
 
     // Generate displayable colors
-    QImage img(500, 1, QImage::Format_ARGB32);
+    QImage img(512, 1, QImage::Format_ARGB32);
     colors.reserve(img.height());
     QPainter painter;
     painter.begin(&img);
@@ -43,11 +43,6 @@ Waterfall::Waterfall(QQuickItem *parent) : QQuickPaintedItem(parent)
 
 void Waterfall::paint(QPainter *painter)
 {
-    //QPen pen(QColorConstants::Blue, 2);
-    QPen pen(QColor(0,0,255), 2);
-    painter->setPen(pen);
-    painter->setRenderHints(QPainter::Antialiasing, true);
-    painter->drawPie(boundingRect().adjusted(1, 1, -1, -1), 90 * 16, 290 * 16);
     painter->drawImage(QRect(0, 0, width(), height()), image, QRect(0, 0, image.width(), image.height()));
 }
 
@@ -70,10 +65,6 @@ void Waterfall::sizeChanged() {
 void Waterfall::addSamples(std::vector<float> samples)
 {
     ignoreCounter++;
-    //if(!(ignoreCounter % 100)==0)
-    //{
-    //    return;
-    //}
 
     float sensitivity = 1.0;
 
@@ -82,16 +73,29 @@ void Waterfall::addSamples(std::vector<float> samples)
     QPainter painter;
     painter.begin(&img);
 
+    float max = 0.0;
+
     // Draw 1st pixel row: new values
     for (int x = 0; x < img.width(); x++) {
         unsigned int index = (int)((float)x)/((float)img.width()) * samples.size();
-        //unsigned result = (int)((samples[index])/8.19); // TODO has to be std::log?
-        unsigned result = (int)(std::log(samples[index])*10); // TODO has to be std::log?
-        if(result >= 500)
-            result = 499;
+
+        //qDebug() << samples.size();
+        //float amplitude = std::log10f(std::abs(samples[index]))*20.0;
+        //float amplitude = std::abs(samples[index]);
+        float amplitude = samples[index];
+        //float amplitude = 0;
+        if(amplitude >= max)
+            max = amplitude;
+        unsigned result = (int)(amplitude * (float)sensitivity * (float)colors.length());
+        if(result <= 0)
+            result = 0;
+        else if(result >= colors.length())
+            result = colors.length()-1;
         painter.setPen(colors[result]);
         painter.drawRect(x, 0, 1, 1);
     }
+
+    //qDebug() << max;
 
     // Draw old values
     if (!image.isNull()) {

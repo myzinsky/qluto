@@ -11,7 +11,7 @@ Window {
     width: 4096
     height: 480
     visible: true
-    title: qsTr("Hello World")
+    title: qsTr("qLuto - Powered by speckmarschall global intelligence")
 
     Waterfall {
         objectName: "Waterfall"

@@ -31,12 +31,10 @@ void fft::processSample(std::complex<float> sample)
 void fft::prepareWaterfall() 
 {
     std::vector<std::complex<float>> result = fftShift();
-
     std::vector<float> waterfallSamples;
 
     for(uint64_t i = 0; i < N; i++) {
-        //waterfallSamples.push_back(sqrt(pow(fftOut[i].imag(),2) + pow(fftOut[i].real(),2))); 
-        waterfallSamples.push_back(sqrt(pow(result[i].imag(),2) + pow(result[i].real(),2))); 
+        waterfallSamples.push_back(std::abs(result[i]));
     }    
 
     emit notifyWaterfall(waterfallSamples);
