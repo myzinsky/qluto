@@ -43,7 +43,8 @@ Waterfall::Waterfall(QQuickItem *parent) : QQuickPaintedItem(parent)
 
 void Waterfall::paint(QPainter *painter)
 {
-    QPen pen(QColorConstants::Blue, 2);
+    //QPen pen(QColorConstants::Blue, 2);
+    QPen pen(QColor(0,0,255), 2);
     painter->setPen(pen);
     painter->setRenderHints(QPainter::Antialiasing, true);
     painter->drawPie(boundingRect().adjusted(1, 1, -1, -1), 90 * 16, 290 * 16);
@@ -100,4 +101,24 @@ void Waterfall::addSamples(std::vector<float> samples)
 
     image = img;
     update();
+}
+
+fft *Waterfall::dataSource() const
+{
+    return m_dataSource;
+}
+
+void Waterfall::setDataSource(fft *value)
+{
+    if(m_dataSource == value)
+        return;
+
+    if(m_dataSource)
+        disconnect(m_dataSource, &fft::notifyWaterfall, this, &Waterfall::addSamples);
+
+    m_dataSource = value;
+
+    if(m_dataSource)
+        connect(m_dataSource, &fft::notifyWaterfall, this, &Waterfall::addSamples);
+    Q_EMIT dataSourceChanged();
 }
