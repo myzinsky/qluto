@@ -3,10 +3,12 @@
 pluto::pluto(fft* fourier) {
     sampleRate = 3'000'000;
     sampleBufferSize = sampleRate/10;
-    lnbReference = 24'000'000;
+    //lnbReference = 24'000'000;
     baseQrg = 10'489'470'000;
+    rxOffset = 10'057'000'000;
     //baseQrgRx = double(baseQrg - 390UL*lnbReference);
-    baseQrgRx = 432'600'000;
+    baseQrgRx = baseQrg - rxOffset; //432'600'000;
+    qDebug() << "baseQrgRx = " << baseQrgRx;
     baseQrgTx = double(2'400'000UL - 30UL);
     bandwidthRx = 1'000'000; 
     bandwidthTx =   100'000;

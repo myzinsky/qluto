@@ -8,7 +8,7 @@ import Qt.labs.platform 1.1
 import HamTools 1.0
 
 Window {
-    width: 640
+    width: 4096
     height: 480
     visible: true
     title: qsTr("Hello World")

@@ -32,6 +32,7 @@ class pluto : public QObject
     uint64_t sampleBufferSize;
     uint64_t lnbReference;
     uint64_t baseQrg; 
+    uint64_t rxOffset; 
     double baseQrgTx;
     double baseQrgRx;
     int64_t bandwidthRx;

@@ -21,7 +21,7 @@ void fft::processSample(std::complex<float> sample)
 {
     fftIn[sampleCounter++] = sample;
 
-    if(sampleCounter == (N-1)) {
+    if(sampleCounter == (N)) {
         sampleCounter = 0;
         fft_execute(liquidFFT);
         prepareWaterfall();
@@ -30,11 +30,36 @@ void fft::processSample(std::complex<float> sample)
 
 void fft::prepareWaterfall() 
 {
+    std::vector<std::complex<float>> result = fftShift();
+
     std::vector<float> waterfallSamples;
 
     for(uint64_t i = 0; i < N; i++) {
-        waterfallSamples.push_back(sqrt(pow(fftOut[i].imag(),2) + pow(fftOut[i].real(),2))); 
+        //waterfallSamples.push_back(sqrt(pow(fftOut[i].imag(),2) + pow(fftOut[i].real(),2))); 
+        waterfallSamples.push_back(sqrt(pow(result[i].imag(),2) + pow(result[i].real(),2))); 
     }    
 
     emit notifyWaterfall(waterfallSamples);
+}
+
+std::vector<std::complex<float>> fft::fftShift() 
+{
+    std::vector<std::complex<float>> result;
+    
+    result.reserve(N);
+
+    result[N/2].imag(fftOut[0].imag());
+    result[N/2].real(fftOut[0].real());
+
+    for(uint64_t i = 1; i < N/2; i++) {
+        result[N/2 + i].imag(fftOut[i].imag());
+        result[N/2 + i].real(fftOut[i].real());
+    }
+
+    for(uint64_t i = N/2+1; i < N; i++) {
+        result[i-N/2].imag(fftOut[i].imag());
+        result[i-N/2].real(fftOut[i].real());
+    }
+    return result;
+
 }

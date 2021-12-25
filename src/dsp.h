@@ -20,6 +20,7 @@ class fft : public QObject
     private:
     uint64_t N;
     uint64_t sampleCounter;
+    std::vector<std::complex<float>> fftShift();
 
     fftplan liquidFFT;
     std::complex<float> *fftIn;
