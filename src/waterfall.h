@@ -21,11 +21,12 @@ public:
     void paint(QPainter *painter);
 
 public slots:
-    void addSamples(std::vector<uint16_t> samples);
+    void addSamples(std::vector<float> samples);
 
 private:
     QImage image;
     QList<QRgb> colors;
+    uint64_t ignoreCounter;
 
 private slots:
     void sizeChanged();

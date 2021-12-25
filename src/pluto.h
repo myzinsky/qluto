@@ -6,6 +6,7 @@
 #include <QSettings>
 #include <QThread>
 #include <iio.h>
+#include "dsp.h"
 
 class pluto : public QObject
 {
@@ -14,7 +15,7 @@ class pluto : public QObject
     enum iodev { RX, TX };
 
     public:
-    pluto();
+    pluto(fft* fourier);
 
     public slots:
     void connect();
@@ -56,6 +57,9 @@ class pluto : public QObject
     // Threads:
     QThread *rxThread;
     void rxFunction();
+
+    // DSP:
+    fft* fourier;
 
     // Methods that encapsulate pluto access (i.e. driver):
     iio_scan_context* getScanContext();

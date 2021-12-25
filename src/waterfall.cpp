@@ -37,6 +37,8 @@ Waterfall::Waterfall(QQuickItem *parent) : QQuickPaintedItem(parent)
         QRgb rgb = img.pixel(i, 0);
         colors.append(rgb);
     }
+
+    ignoreCounter = 0;
 }
 
 void Waterfall::paint(QPainter *painter)
@@ -64,8 +66,14 @@ void Waterfall::sizeChanged() {
     update();
 }
 
-void Waterfall::addSamples(std::vector<uint16_t> samples)
+void Waterfall::addSamples(std::vector<float> samples)
 {
+    ignoreCounter++;
+    if(!(ignoreCounter % 100)==0)
+    {
+        return;
+    }
+
     float sensitivity = 1.0;
 
     // Create new image:
@@ -75,8 +83,8 @@ void Waterfall::addSamples(std::vector<uint16_t> samples)
 
     // Draw 1st pixel row: new values
     for (int x = 0; x < img.width(); x++) {
-        unsigned int index = ((double)x)/((double)img.width()) * samples.size();
-        unsigned result = (int)(((double)samples[index])/8.19); // TODO has to be std::log?
+        unsigned int index = (int)((float)x)/((float)img.width()) * samples.size();
+        unsigned result = (int)((samples[index])/8.19); // TODO has to be std::log?
         if(result >= 500)
             result = 499;
         painter.setPen(colors[result]);

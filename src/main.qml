@@ -14,8 +14,17 @@ Window {
     title: qsTr("Hello World")
 
     Waterfall {
+        objectName: "Waterfall"
         id: wf1
         anchors.fill: parent
+
+        Connections{
+            target: fft
+
+            function onNotifyWaterfall(samples) {
+                wf1.addSamples(samples)
+            }
+        }
     }
 
     GridLayout {

@@ -1,6 +1,6 @@
 #include "pluto.h"
 
-pluto::pluto() {
+pluto::pluto(fft* fourier) {
     sampleRate = 3'000'000;
     sampleBufferSize = sampleRate/10;
     lnbReference = 24'000'000;
@@ -11,6 +11,8 @@ pluto::pluto() {
     bandwidthTx =   100'000;
     rxBuffer = nullptr;
     txBuffer = nullptr;
+
+    this->fourier = fourier;
 }
 
 iio_scan_context* pluto::getScanContext() {
@@ -243,46 +245,32 @@ void pluto::start() {
 
 void pluto::rxFunction()
 {
-    forever{
+    forever {
         ssize_t numberOfRxBytes = iio_buffer_refill(rxBuffer);
+
         if(numberOfRxBytes < 0) {
             emit connectionError("Error Refilling rxBuffer");
         }
-        
+
         uint8_t *start = (uint8_t *)iio_buffer_first(rxBuffer, rx0i);
+        uint8_t *end = (uint8_t *)iio_buffer_end(rxBuffer);
+
+        // READ: Get pointers to RX buf and read IQ from RX buf port 0
+        void *p_dat;
+		ptrdiff_t p_inc = iio_buffer_step(rxBuffer);
+		void *p_end = iio_buffer_end(rxBuffer);
+		for (p_dat = (char *)iio_buffer_first(rxBuffer, rx0i); p_dat < p_end; p_dat = static_cast<char*>(p_dat) + p_inc) {
+			const int16_t i = ((int16_t*)p_dat)[0]; // Real (I)
+			const int16_t q = ((int16_t*)p_dat)[1]; // Imag (Q)
+            std::complex<float> sample;
+            sample.imag((float)q);
+            sample.real((float)i);
+            fourier->processSample(sample);
+		}
+
+		//size_t nrx = numberOfRxBytes / iio_device_get_sample_size(rx);
+		//printf("\tRX %8.2f MSmp\n", nrx/1e6);
 
         QThread::msleep(1000);
     }
-
-    //ssize_t nbytes_rx, nbytes_tx;
-    //uint8_t *p_dat, *p_start;
-
-    ////while(true)
-    //{
-    //    // Get samples from Pluto:
-    //    nbytes_rx = iio_buffer_refill(rxBuffer);
-    //    if (nbytes_rx < 0) {
-    //        std::cout << "Error refilling rxBuffer: " << nbytes_rx << std::endl;
-    //    }
-
-    //    p_start = (uint8_t *)iio_buffer_first(rxBuffer, rx0i);
-
-    //    // sample buffer begins at p_start with length (PLUTOBUFSIZE * p_inc) bytes
-    //    // TODO write_fifo(RXfifo,p_start,nbytes_rx);
-    //    // TODO write_fifo(FFTfifo,p_start,nbytes_rx);
-
-    //    // Send samples to Pluto:
-    //    //uint8_t pidata[sampleBufferSize*4];
-    //    //int lenfifo = read_fifo(TXfifo, pidata, PLUTOBUFSIZE*4);
-    //    //if(lenfifo)
-    //    //{
-    //    //    p_dat = (uint8_t *)iio_buffer_first(txbuf, tx0_i);
-    //    //    memcpy(p_dat,pidata,PLUTOBUFSIZE*4);
-
-    //    //    nbytes_tx = iio_buffer_push(txbuf);
-    //    //    if (nbytes_tx < 0) { printf("Error pushing buf %d\n", (int) nbytes_tx); }
-    //    //}
-
-    //    //usleep(1000);
-    //}
 }
