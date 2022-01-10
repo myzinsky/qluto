@@ -18,8 +18,11 @@ set(CMAKE_AUTORCC ON)
 
 # Add LibIIO:
 add_subdirectory(lib/libiio)
-set(CMAKE_INSTALL_RPATH "@executable_path/lib/libiio")
-set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
+find_library(LIBIIO_LIBRARIES iio "${CMAKE_CURRENT_LIST_DIR}/build/lib/libiio")
+find_path(LIBIIO_INCLUDEDIR iio.h "${CMAKE_CURRENT_LIST_DIR}/lib/libiio")
+
+# Add AD9361
+add_subdirectory(lib/libad9361-iio)
 
 # Search for Qt:
 find_package(QT NAMES Qt6 Qt5 COMPONENTS Qml Core Quick Widgets REQUIRED)
@@ -35,12 +38,13 @@ add_executable(qluto
 
 target_include_directories(qluto
     PRIVATE lib/libiio
+    PRIVATE lib/libad9361-iio
     PRIVATE lib/liquid-dsp/include
 )
 
 target_link_libraries(qluto
     PRIVATE iio
-    #PRIVATE ${LIQUID_DSP}
+    PRIVATE ad9361
     PRIVATE ${CMAKE_CURRENT_LIST_DIR}/build/lib/liquid-dsp/lib/libliquid.ar
     PRIVATE Qt${QT_VERSION_MAJOR}::Core
     PRIVATE Qt${QT_VERSION_MAJOR}::Quick

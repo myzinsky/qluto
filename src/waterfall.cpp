@@ -73,29 +73,25 @@ void Waterfall::addSamples(std::vector<float> samples)
     QPainter painter;
     painter.begin(&img);
 
-    float max = 0.0;
+    float maxColor = static_cast<float>(colors.length());
 
     // Draw 1st pixel row: new values
     for (int x = 0; x < img.width(); x++) {
         unsigned int index = (int)((float)x)/((float)img.width()) * samples.size();
 
-        //qDebug() << samples.size();
-        //float amplitude = std::log10f(std::abs(samples[index]))*20.0;
-        //float amplitude = std::abs(samples[index]);
-        float amplitude = samples[index];
-        //float amplitude = 0;
-        if(amplitude >= max)
-            max = amplitude;
-        unsigned result = (int)(amplitude * (float)sensitivity * (float)colors.length());
-        if(result <= 0)
+        //float amplitude = std::log10f(samples.at(index));
+        float amplitude = samples.at(index);
+        uint64_t result = static_cast<uint64_t>(amplitude * sensitivity * maxColor);
+
+        if(result <= 0) {
             result = 0;
-        else if(result >= colors.length())
+        } else if(result >= colors.length()) {
             result = colors.length()-1;
+        }
+
         painter.setPen(colors[result]);
         painter.drawRect(x, 0, 1, 1);
     }
-
-    //qDebug() << max;
 
     // Draw old values
     if (!image.isNull()) {

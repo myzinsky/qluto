@@ -1,10 +1,8 @@
 #include "pluto.h"
 
 pluto::pluto(fft* fourier) {
-    //sampleRate = 3'000'000;
-    sampleRate = 25'000;
-    //sampleRate = 1'000'000;
-    sampleBufferSize = sampleRate/10;
+    sampleRate = 1'000'000;
+    sampleBufferSize = sampleRate/200;
     //lnbReference = 24'000'000;
     //baseQrg = 10'489'470'000;
     baseQrg = 10'489'750'000;
@@ -163,15 +161,17 @@ bool pluto::setTxQrg(int64_t qrg)
         return false;
     }
     writeToChannel(channel, "frequency", qrg);
+    return true;
 }
 
 bool pluto::setRxQrg(int64_t qrg)
 {
-    struct iio_channel *channel = NULL;
+    struct iio_channel *channel = nullptr;
     if (!getLocalOscillatorChannel(context, RX, &channel)) {
         return false;
     }
     writeToChannel(channel, "frequency", qrg);
+    return true;
 }
 
 void pluto::connect()
@@ -209,7 +209,7 @@ void pluto::connect()
         return;
     }
 
-    if(!configureChannel(context, bandwidthRx, sampleRate, baseQrg, "A", TX, 0)) {
+    if(!configureChannel(context, bandwidthTx, sampleRate, baseQrg, "A", TX, 0)) {
         emit connectionError("Cannot connect to Pluto: Unable to configure RX channel");
         return;
     }
@@ -242,6 +242,9 @@ void pluto::connect()
         return;
     }
 
+    //ad9361_set_bb_rate()
+    ad9361_set_bb_rate(getDevice(context), round(sampleRate));
+
     emit connected();
 }
 
@@ -270,8 +273,8 @@ void pluto::rxFunction()
 			const int16_t i = ((int16_t*)p_dat)[0]; // Real (I)
 			const int16_t q = ((int16_t*)p_dat)[1]; // Imag (Q)
             std::complex<float> sample;
-            sample.imag((float)q);
-            sample.real((float)i);
+            sample.imag(((float)q));
+            sample.real(((float)i));
             fourier->processSample(sample);
 		}
 

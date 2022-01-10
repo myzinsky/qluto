@@ -6,6 +6,7 @@
 #include <QSettings>
 #include <QThread>
 #include <iio.h>
+#include <ad9361.h>
 #include "dsp.h"
 
 class pluto : public QObject
