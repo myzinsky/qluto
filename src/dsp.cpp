@@ -26,11 +26,16 @@ void fft::processSample(std::complex<float> sample)
         fft_execute(liquidFFT);
 
         std::vector<std::complex<float>> result = fftShift();
-        std::vector<float> waterfallSamples;
 
+        // TODO: try to send waterfall directly I/Q-samples ...
+        std::vector<float> waterfallSamples;
         for(uint64_t i = 0; i < N; i++) {
             waterfallSamples.push_back(std::abs(result[i]));
         }    
+
+        // Normalize:
+        float maxValue = *std::max_element(std::begin(waterfallSamples), std::end(waterfallSamples));
+        transform(waterfallSamples.begin(), waterfallSamples.end(), waterfallSamples.begin(), [maxValue](float &sample){ return sample/maxValue; });
 
         emit notifyWaterfall(waterfallSamples);
     }

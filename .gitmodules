@@ -4,3 +4,6 @@
 [submodule "lib/liquid-dsp"]
 	path = lib/liquid-dsp
 	url = https://github.com/jgaeddert/liquid-dsp.git
+[submodule "lib/libad9361-iio"]
+	path = lib/libad9361-iio
+	url = https://github.com/analogdevicesinc/libad9361-iio.git
